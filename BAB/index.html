@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Visual Representations Web App</title>
+  <style>
+    /* (Your existing CSS stays unchanged) */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f2f5;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 90%;
+      max-width: 2000px;
+      margin: 20px auto;
+      padding: 20px 30px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    h1, h2, h3 {
+      color: #333;
+      margin-top: 0;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .instructions p {
+      line-height: 1.6;
+      font-size: 16px;
+      margin: 10px 0;
+    }
+    .instructions p strong {
+      color: #4285F4;
+    }
+    .top-container {
+      margin-bottom: 20px;
+    }
+    .question-panel {
+      background-color: #fafafa;
+      padding: 20px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      overflow-y: auto;
+      max-height: 250px;
+    }
+    .visualization-container {
+      margin-bottom: 20px;
+    }
+    iframe {
+      width: 100%;
+      height: 800px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      padding: 12px 20px;
+      margin: 10px 5px 0 0;
+      cursor: pointer;
+      border: none;
+      background-color: #4285F4;
+      color: #fff;
+      border-radius: 5px;
+      font-size: 16px;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #357ae8;
+    }
+    .toggle-btn {
+      background-color: #34a853;
+    }
+    .toggle-btn:hover {
+      background-color: #2c8c44;
+    }
+    .comparison-container {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 15px;
+      background-color: #f9f9f9;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    }
+    .hidden {
+      display: none;
+    }
+    #navigationButtons {
+      margin-top: 20px;
+    }
+    #taskQuestions ol {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    #taskQuestions li {
+      background-color: #eaf4ff;
+      border-left: 5px solid #4285F4;
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      border-radius: 3px;
+      line-height: 1.5;
+    }
+    #taskQuestions li code {
+      background-color: #f1f1f1;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-family: Consolas, "Courier New", monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Visual Representations Web App</h1>
+    <div class="instructions">
+      <p>
+        Welcome! In this study, you'll explore two programming visualization tools:
+        Python Tutor and the Multiple Representations (MER) Tool.
+      </p>
+      <p>
+        You'll see the questions at the <strong>top</strong>, the first visualization below them, and you can toggle the comparison visualization at the bottom.
+      </p>
+      <p>
+        <strong>Group Assignment:</strong> <span id="groupInfo"></span>
+      </p>
+    </div>
+    
+    <div id="taskContainer">
+      <!-- Questions at the Top -->
+      <div class="top-container">
+        <h2 id="taskTitle"></h2>
+        <div class="question-panel">
+          <div id="taskQuestions"></div>
+        </div>
+      </div>
+
+      <!-- First Visualization -->
+      <div class="visualization-container">
+        <h3>First Visualization</h3>
+        <iframe id="firstIframe" src=""></iframe>
+      </div>
+
+      <!-- Toggle Button and Comparison Visualization -->
+      <button id="toggleComparisonBtn" class="toggle-btn">Show Comparison</button>
+      <div class="comparison-container hidden" id="comparisonContainer">
+        <h3>Comparison Visualization</h3>
+        <iframe id="secondIframe" src=""></iframe>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div id="navigationButtons">
+        <button id="prevTaskBtn">Previous Task</button>
+        <button id="nextTaskBtn">Next Task</button>
+      </div>
+    </div>
+    
+    <!-- Final Message -->
+    <div id="finalMessage" class="hidden">
+      <h2>Thank you for participating!</h2>
+      <p>Please submit your feedback and close the window.</p>
+    </div>
+
+  <script>
+    // Set the initial group assignment: "A" for Python Tutor first, "B" for MER Tool first.
+    const initialGroup = "B"; // Change this to "B" if needed.
+
+    // Arrays for embed URLs for each task.
+    const pythonTutorLinks = [
+      "https://pythontutor.com/render.html#code=a%20%3D%205%0Ab%20%3D%202%0Adef%20my_add%28x,%20y%29%3A%0A%20%20%20a%20%3D%20x%20%2B%20y%0A%20%20%20return%20a%0Ac%20%3D%20my_add%28a,%20b%29&cumulative=false&curInstr=0&heapPrimitives=nevernest&mode=display&origin=opt-frontend.js&py=3&rawInputLstJSON=%5B%5D&textReferences=false",
+      "https://pythontutor.com/render.html#code=searching%20%3D%20True%0Acounter%20%3D%200%0Awanted_item%20%3D%20'Wanted%20Item%20Name'%0Alst%20%3D%20%5B'item1',%20'item2',%20'Wanted%20Item%20Name',%20'item4'%5D%0Awhile%20searching%3A%0A%20%20%20if%20%28lst%5Bcounter%5D%20%3D%3D%20wanted_item%29%3A%0A%20%20%20%20%20%20%20searching%20%3D%20False%0A%20%20%20else%3A%0A%20%20%20%20%20%20%20counter%20%2B%3D%201%0Aprint%28%22Item%20was%20found%20at%20index%22,%20counter%29&cumulative=false&curInstr=0&heapPrimitives=nevernest&mode=display&origin=opt-frontend.js&py=3&rawInputLstJSON=%5B%5D&textReferences=false",
+      "https://pythontutor.com/render.html#code=class%20Node%3A%0A%20%20%20%20def%20__init__%28self,%20data%29%3A%0A%20%20%20%20%20%20%20%20self.data%20%3D%20data%0A%20%20%20%20%20%20%20%20self.next%20%3D%20None%0A%0Aclass%20LinkedList%3A%0A%20%20%20%20def%20__init__%28self%29%3A%0A%20%20%20%20%20%20%20%20self.first%20%3D%20None%0A%0A%20%20%20%20def%20append%28self,%20data%29%3A%0A%20%20%20%20%20%20%20%20new_node%20%3D%20Node%28data%29%0A%20%20%20%20%20%20%20%20if%20not%20self.first%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20self.first%20%3D%20new_node%0A%20%20%20%20%20%20%20%20%20%20%20%20return%0A%20%20%20%20%20%20%20%20last%20%3D%20self.first%0A%20%20%20%20%20%20%20%20while%20last.next%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20last%20%3D%20last.next%0A%20%20%20%20%20%20%20%20last.next%20%3D%20new_node%0A%0A%23%20Example%20usage%0All1%20%3D%20LinkedList%28%29%0All1.append%2810%29%0All1.append%2820%29&cumulative=false&curInstr=29&heapPrimitives=nevernest&mode=display&origin=opt-frontend.js&py=311&rawInputLstJSON=%5B%5D&textReferences=false"
+    ];
+
+    const merLinks = [
+      "https://core-research-lab.github.io/Interactive-Viz-IntroProgramming/functions/",
+      "https://core-research-lab.github.io/Interactive-Viz-IntroProgramming/inspector/",
+      "https://core-research-lab.github.io/Interactive-Viz-IntroProgramming/linked-list/"
+    ];
+
+    // Define tasks with titles and questions.
+    const tasks = [
+      {
+        title: "Task 1: Functions",
+        questions: `
+          <ol>
+            <li>What is the value of the global variable <code>a</code> after <code>my_add(a, b)</code> is called?</li>
+            <li>What is the value of the local variable <code>a</code> right before the return statement?</li>
+            <li>Explain why the global variable remains unchanged.</li>
+          </ol>
+        `
+      },
+      {
+        title: "Task 2: While Loops",
+        questions: `
+          <ol>
+            <li>What value will be printed? Trace each step of the loop.</li>
+            <li>Explain in plain English how the while loop searches for the item. What role does the counter play, and how does the loop stop?</li>
+            <li>How would you modify the code to calculate the total of all even numbers in the list?</li>
+          </ol>
+        `
+      },
+      {
+        title: "Task 3: Linked List",
+        questions: `
+          <ol>
+            <li>What are the values of <code>data</code> and <code>next</code> for each node in the list? List them in order.</li>
+            <li>Explain how the <code>append</code> function works when adding a new node, differentiating between an empty list and a populated list.</li>
+            <li>How would you implement a <code>find(data)</code> method, and what would happen if the value does not exist?</li>
+          </ol>
+        `
+      }
+    ];
+
+    let currentTaskIndex = 0;
+    let isComparisonVisible = false;
+
+    // Helper function to get the opposite group.
+    function getOppositeGroup(group) {
+      return group === "A" ? "B" : "A";
+    }
+
+    // Function to load the task content.
+    function loadTask(index) {
+      if (index < 0 || index >= tasks.length) return;
+      const task = tasks[index];
+      document.getElementById("taskTitle").textContent = task.title;
+      document.getElementById("taskQuestions").innerHTML = task.questions;
+
+      // Determine the current group for this task.
+      // For even-indexed tasks (0, 2, ...), use the initial group.
+      // For odd-indexed tasks (1, 3, ...), use the opposite.
+      const currentGroup = (index % 2 === 0) ? initialGroup : getOppositeGroup(initialGroup);
+
+      // Update the group information display.
+      document.getElementById("groupInfo").textContent =
+        currentGroup === "A" ? "Python Tutor First, then MER Tool" : "MER Tool First, then Python Tutor";
+
+      // Set the iframe URLs based on the current group assignment.
+      if (currentGroup === "A") {
+        document.getElementById("firstIframe").src = pythonTutorLinks[index];
+        document.getElementById("secondIframe").src = merLinks[index];
+      } else {
+        document.getElementById("firstIframe").src = merLinks[index];
+        document.getElementById("secondIframe").src = pythonTutorLinks[index];
+      }
+
+      // Hide the comparison section initially.
+      document.getElementById("comparisonContainer").classList.add("hidden");
+      document.getElementById("toggleComparisonBtn").textContent = "Show Comparison";
+      isComparisonVisible = false;
+
+      // Handle navigation button visibility.
+      document.getElementById("prevTaskBtn").style.display = (index === 0) ? "none" : "inline-block";
+      document.getElementById("nextTaskBtn").textContent = (index === tasks.length - 1) ? "Finish" : "Next Task";
+    }
+
+    // Toggle the comparison section visibility.
+    document.getElementById("toggleComparisonBtn").addEventListener("click", () => {
+      const comparisonContainer = document.getElementById("comparisonContainer");
+      isComparisonVisible = !isComparisonVisible;
+      comparisonContainer.classList.toggle("hidden");
+      document.getElementById("toggleComparisonBtn").textContent = isComparisonVisible ? "Hide Comparison" : "Show Comparison";
+    });
+
+    // Next Task button handler.
+    document.getElementById("nextTaskBtn").addEventListener("click", () => {
+      if (currentTaskIndex < tasks.length - 1) {
+        currentTaskIndex++;
+        loadTask(currentTaskIndex);
+      } else {
+        // End of tasks.
+        document.getElementById("taskContainer").classList.add("hidden");
+        document.getElementById("finalMessage").classList.remove("hidden");
+      }
+    });
+
+    // Previous Task button handler.
+    document.getElementById("prevTaskBtn").addEventListener("click", () => {
+      if (currentTaskIndex > 0) {
+        currentTaskIndex--;
+        loadTask(currentTaskIndex);
+      }
+    });
+
+    // Load the first task on page load.
+    loadTask(currentTaskIndex);
+  </script>
+</body>
+</html>
