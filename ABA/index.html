@@ -114,6 +114,20 @@
       border-radius: 3px;
       font-family: Consolas, "Courier New", monospace;
     }
+    /* New styles for our per-question answer/input */
+    .question-container {
+      margin-bottom: 15px;
+    }
+    .question-answer {
+      display: block;
+      width: 90%;
+      padding: 8px;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    .nextQuestionBtn {
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -202,7 +216,7 @@
           <ol>
             <li>What value will be printed? Trace each step of the loop.</li>
             <li>Explain in plain English how the while loop searches for the item. What role does the counter play, and how does the loop stop?</li>
-            <li>How would you modify the code to calculate the total of all even numbers in the list?</li>
+            <li>How would you modify the code so that if the wanted item is not in the list, the program prints 'Item not found' instead of running indefinitely?</li>
           </ol>
         `
       },
@@ -259,6 +273,57 @@
       // Handle navigation button visibility.
       document.getElementById("prevTaskBtn").style.display = (index === 0) ? "none" : "inline-block";
       document.getElementById("nextTaskBtn").textContent = (index === tasks.length - 1) ? "Finish" : "Next Task";
+
+      // Initialize per-question navigation:
+      initializeQuestionNavigation();
+    }
+
+    // This function modifies the questions so that only one is visible at a time.
+    // Each question gets an answer input and a "Next Question" button that remains disabled until the user types something.
+    function initializeQuestionNavigation() {
+      const taskQuestionsContainer = document.getElementById("taskQuestions");
+      const ol = taskQuestionsContainer.querySelector("ol");
+      if (!ol) return;
+      const liElements = Array.from(ol.querySelectorAll("li"));
+
+      liElements.forEach((li, index) => {
+        li.classList.add("question-container");
+
+        // Append an answer input if one is not already present.
+        if (!li.querySelector("input.question-answer")) {
+          const input = document.createElement("input");
+          input.type = "text";
+          input.classList.add("question-answer");
+          input.placeholder = "Type your answer here";
+          li.appendChild(input);
+        }
+
+        // For all questions except the last, add a Next Question button.
+        if (index < liElements.length - 1) {
+          const nextButton = document.createElement("button");
+          nextButton.textContent = "Next Question";
+          nextButton.classList.add("nextQuestionBtn");
+          nextButton.disabled = true; // disable until answer is provided
+          li.appendChild(nextButton);
+
+          // Enable the button when the input has a non-empty value.
+          const inputField = li.querySelector("input.question-answer");
+          inputField.addEventListener("input", () => {
+            nextButton.disabled = inputField.value.trim() === "";
+          });
+
+          // When clicked, hide the current question and show the next.
+          nextButton.addEventListener("click", () => {
+            li.style.display = "none";
+            liElements[index + 1].style.display = "block";
+          });
+        }
+      });
+
+      // Only show the first question initially; hide the rest.
+      liElements.forEach((li, index) => {
+        li.style.display = (index === 0) ? "block" : "none";
+      });
     }
 
     // Toggle the comparison section visibility.
