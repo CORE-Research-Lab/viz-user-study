@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Visual Representations Web App</title>
+  <!-- Include WebGazer from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/webgazer"></script>
   <style>
     /* (Your existing CSS stays unchanged) */
     body {
@@ -30,6 +32,9 @@
     h1 {
       text-align: center;
       margin-bottom: 20px;
+    }
+    .instructions {
+      margin-left: 20px; /* Moved a bit to the right */
     }
     .instructions p {
       line-height: 1.6;
@@ -128,6 +133,19 @@
     .nextQuestionBtn {
       margin-top: 10px;
     }
+    /* Fixed download button styling */
+    .download-btn-fixed {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+      padding: 12px 20px;
+      background-color: #4285F4;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -180,16 +198,18 @@
       <h2>Thank you for participating!</h2>
       <p>Please submit your feedback and close the window.</p>
     </div>
+  </div>
 
   <script>
-    // Set the initial group assignment: "A" for Python Tutor first, "B" for MER Tool first.
+    // ===============================
+    // Existing Study Tool Code
+    // ===============================
     const initialGroup = "A"; // Change this to "B" if needed.
 
-    // Arrays for embed URLs for each task.
     const pythonTutorLinks = [
       "https://pythontutor.com/render.html#code=a%20%3D%205%0Ab%20%3D%202%0Adef%20my_add%28x,%20y%29%3A%0A%20%20%20a%20%3D%20x%20%2B%20y%0A%20%20%20return%20a%0Ac%20%3D%20my_add%28a,%20b%29&cumulative=false&curInstr=0&heapPrimitives=nevernest&mode=display&origin=opt-frontend.js&py=3&rawInputLstJSON=%5B%5D&textReferences=false",
       "https://pythontutor.com/render.html#code=searching%20%3D%20True%0Acounter%20%3D%200%0Awanted_item%20%3D%20'Wanted%20Item%20Name'%0Alst%20%3D%20%5B'item1',%20'item2',%20'Wanted%20Item%20Name',%20'item4'%5D%0Awhile%20searching%3A%0A%20%20%20if%20%28lst%5Bcounter%5D%20%3D%3D%20wanted_item%29%3A%0A%20%20%20%20%20%20%20searching%20%3D%20False%0A%20%20%20else%3A%0A%20%20%20%20%20%20%20counter%20%2B%3D%201%0Aprint%28%22Item%20was%20found%20at%20index%22,%20counter%29&cumulative=false&curInstr=0&heapPrimitives=nevernest&mode=display&origin=opt-frontend.js&py=3&rawInputLstJSON=%5B%5D&textReferences=false",
-      "https://pythontutor.com/render.html#code=class%20Node%3A%0A%20%20%20%20def%20__init__%28self,%20data%29%3A%0A%20%20%20%20%20%20%20%20self.data%20%3D%20data%0A%20%20%20%20%20%20%20%20self.next%20%3D%20None%0A%0Aclass%20LinkedList%3A%0A%20%20%20%20def%20__init__%28self%29%3A%0A%20%20%20%20%20%20%20%20self.first%20%3D%20None%0A%0A%20%20%20%20def%20append%28self,%20data%29%3A%0A%20%20%20%20%20%20%20%20new_node%20%3D%20Node%28data%29%0A%20%20%20%20%20%20%20%20if%20not%20self.first%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20self.first%20%3D%20new_node%0A%20%20%20%20%20%20%20%20%20%20%20%20return%0A%20%20%20%20%20%20%20%20last%20%3D%20self.first%0A%20%20%20%20%20%20%20%20while%20last.next%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20last%20%3D%20last.next%0A%20%20%20%20%20%20%20%20last.next%20%3D%20new_node%0A%0A%23%20Example%20usage%0All1%20%3D%20LinkedList%28%29%0All1.append%2810%29%0All1.append%2820%29&cumulative=false&curInstr=29&heapPrimitives=nevernest&mode=display&origin=opt-frontend.js&py=311&rawInputLstJSON=%5B%5D&textReferences=false"
+      "https://pythontutor.com/render.html#code=class%20Node%3A%0A%20%20%20%20def%20__init__%28self,%20data%29%3A%0A%20%20%20%20%20%20%20%20self.data%20%3D%20data%0A%20%20%20%20%20%20%20%20self.next%20%3D%20None%0A%0Aclass%20LinkedList%3A%0A%20%20%20%20def%20__init__%28self%29%3A%0A%20%20%20%20%20%20%20%20self.first%20%3D%20None%0A%0A%20%20%20%20def%20append%28self,%20data%29%3A%0A%20%20%20%20%20%20%20%20new_node%20%3D%20Node%28data%29%0A%20%20%20%20%20%20%20%20if%20not%20self.first%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20self.first%20%3D%20new_node%0A%20%20%20%20%20%20%20%20%20%20%20%20return%0A%20%20%20%20%20%20%20%20last%20%3D%20self.first%0A%20%20%20%20%20%20%20%20while%20last.next%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20last%20%3D%20last.next%0A%20%20%20%20%20%20%20%20last.next%20%3D%20new_node%0A%0A%23%20Example%20usage%0All1%20%3D%20LinkedList%28%29%0All1.append%2810%29%0All1.append%2820%29"
     ];
 
     const merLinks = [
@@ -198,7 +218,6 @@
       "https://core-research-lab.github.io/Interactive-Viz-IntroProgramming/linked-list/"
     ];
 
-    // Define tasks with titles and questions.
     const tasks = [
       {
         title: "Task 1: Functions",
@@ -356,6 +375,76 @@
 
     // Load the first task on page load.
     loadTask(currentTaskIndex);
+
+    // ===============================
+    // Eye-Tracking and Mouse-Tracking Integration Code
+    // ===============================
+    // Eye-tracking data will be recorded in an array.
+    let eyeTrackingData = [];
+    // Mouse-tracking data will also be recorded here.
+    let mouseTrackingData = [];
+    // Capture a start time for mouse tracking.
+    let mouseTrackingStartTime = Date.now();
+    const isDemoMode = true;
+
+    function startEyeTracking() {
+      webgazer.setRegression('ridge');
+      webgazer.setTracker('clmtrackr');
+      webgazer.begin();
+      webgazer.showPredictionPoints(false); // Call this separately.
+      
+      // Set up the gaze listener to record coordinates and timestamps.
+      webgazer.setGazeListener(function(data, elapsedTime) {
+        if (data == null) return;
+        const dataPoint = {
+          elapsedTime: Math.round(elapsedTime),
+          x: Math.round(data.x),
+          y: Math.round(data.y)
+        };
+        eyeTrackingData.push(dataPoint);
+      });
+    }
+
+    // Mouse-tracking: record mousemove events with elapsed time.
+    document.addEventListener('mousemove', function(event) {
+      const dataPoint = {
+        elapsedTime: Math.round(Date.now() - mouseTrackingStartTime),
+        x: event.clientX,
+        y: event.clientY
+      };
+      mouseTrackingData.push(dataPoint);
+    });
+
+    // Function to download the eye-tracking and mouse-tracking data as a text file.
+    function downloadEyeTrackingData() {
+      const combinedData = {
+        eyeTrackingData: eyeTrackingData,
+        mouseTrackingData: mouseTrackingData
+      };
+      const dataStr = JSON.stringify(combinedData, null, 2);
+      const blob = new Blob([dataStr], { type: "text/plain" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "tracking_data.txt";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }
+
+    // Start eye tracking when the page fully loads.
+    window.addEventListener("load", startEyeTracking);
+
+    // If in demo mode, add a fixed download button that is always visible.
+    if (isDemoMode) {
+      const fixedDownloadBtn = document.createElement("button");
+      fixedDownloadBtn.id = "fixedDownloadBtn";
+      fixedDownloadBtn.textContent = "Download Eye Tracking Data";
+      fixedDownloadBtn.classList.add("download-btn-fixed");
+      fixedDownloadBtn.addEventListener("click", downloadEyeTrackingData);
+      document.body.appendChild(fixedDownloadBtn);
+    }
   </script>
 </body>
 </html>
